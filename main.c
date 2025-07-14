@@ -25,6 +25,17 @@
 /* Local headers */
 #include "common.h"
 
+/**
+ * @brief Structure to hold the parsed values
+ *
+ */
+typedef struct parsed_val_t {
+	/* Flag to check if file is given */
+	bool isFileGiven;
+	/* File name */
+	char * filename;
+} ParsedValues_t;
+
 /* Version string */
 static const char * const version_str = "v1.0.0";
 
@@ -60,7 +71,9 @@ static Result fileCheck(const char * const filename) {
 	return result;
 }
 
-static Result parseArgs(int argc, char *argv[]) {
+static Result parseArgs(int argc, char *argv[],
+						ParsedValues_t * pv_ptr) {
+
 	Result result = {.code = RESULT_OK };
 	result.errStr[0] = '\0';
 
@@ -98,24 +111,21 @@ static Result parseArgs(int argc, char *argv[]) {
 				result.errStr[0] = '\0';
 				return result;
 			case 'f':
+				pv_ptr->isFileGiven = true;
 				result = fileCheck(optarg);
 				if (result.code != RESULT_OK) {
 					return result;
 				}
 				size_t filenameSize = strlen(optarg);
-				char * filename = (char *)malloc(filenameSize + 1U);
-				if (NULL == filename) {
+				pv_ptr->filename = (char *)malloc(filenameSize + 1U);
+				if (NULL == pv_ptr->filename) {
 					result.code = RESULT_FAILED_TO_ALLOCATE_MEMORY;
 					copyMessage(result.errStr, "Failed to allocate memory for filename");
 					return result;
 				}
 
-				strncpy(filename, optarg, filenameSize);
-				filename[filenameSize] = '\0';
-
-				printf("Filename: %s", filename);
-				free(filename);
-				filename = NULL;
+				strncpy(pv_ptr->filename, optarg, filenameSize);
+				pv_ptr->filename[filenameSize] = '\0';
 				break;
 			case '?':
 			default:
@@ -135,11 +145,20 @@ int main(int argc, char *argv[]) {
 	result.code = RESULT_OK;
 	result.errStr[0] = '\0';
 
-	result = parseArgs(argc, argv);
+	ParsedValues_t pv = { .isFileGiven = false, .filename = NULL };
+	result = parseArgs(argc, argv, &pv);
 	if (RESULT_OK != result.code) {
 		fprintf(stderr, "Failed to parse argument: %s", result.errStr);
 		return EXIT_FAILURE;
 	}
+	if (!pv.isFileGiven) {
+		fprintf(stderr, "Error: File not provided\n");
+		return EXIT_FAILURE;
+	}
+
+	printf("Filename : %s\n", pv.filename);
+	free(pv.filename);
+	pv.filename = NULL;
 
 	return EXIT_SUCCESS;
 }

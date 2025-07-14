@@ -30,6 +30,10 @@
  *
  */
 typedef struct parsed_val_t {
+	/* Flag to check if it is help command */
+	bool isHelpCommand;
+	/* Flag to check if it is version command */
+	bool isVersionCommand;
 	/* Flag to check if file is given */
 	bool isFileGiven;
 	/* File name */
@@ -104,18 +108,23 @@ static Result parseArgs(int argc, char *argv[],
 				printUsage();
 				result.code = RESULT_OK;
 				result.errStr[0] = '\0';
+				pv_ptr->isHelpCommand = true;
 				return result;
 			case 'V':
 				printVersion();
 				result.code = RESULT_OK;
 				result.errStr[0] = '\0';
+				pv_ptr->isVersionCommand = true;
 				return result;
 			case 'f':
+				result.code = RESULT_OK;
+				result.errStr[0] = '\0';
 				pv_ptr->isFileGiven = true;
 				result = fileCheck(optarg);
 				if (result.code != RESULT_OK) {
 					return result;
 				}
+
 				size_t filenameSize = strlen(optarg);
 				pv_ptr->filename = (char *)malloc(filenameSize + 1U);
 				if (NULL == pv_ptr->filename) {
@@ -150,6 +159,9 @@ int main(int argc, char *argv[]) {
 	if (RESULT_OK != result.code) {
 		fprintf(stderr, "Failed to parse argument: %s", result.errStr);
 		return EXIT_FAILURE;
+	}
+	if (pv.isHelpCommand || pv.isVersionCommand) {
+		return EXIT_SUCCESS;
 	}
 	if (!pv.isFileGiven) {
 		fprintf(stderr, "Error: File not provided\n");

@@ -15,17 +15,115 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* C Standard library headers */
 #include <stdio.h>
+#include <getopt.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdbool.h>
 
+/* Local headers */
+#include "common.h"
+
+/* Version string */
+static const char * const version_str = "v1.0.0";
+
+/* Usage string */
 static const char * const usage =
 "6502 Microprocessor Assembler:\n"
 "Usage:\n"
 "./asm6 -f <assembly_file_name>\n\n"
 "Args:\n"
-"  -f 	--file <file_name>	Sets the filename argument.\n";
+"  -f 	--file <file_name>	Sets the filename argument.\n"
+"  -h 	--help				Prints the tool overview.\n"
+"  -V 	--version			Prints the tool version info.\n";
+
+static void printVersion() {
+	printf("%s", version_str);
+}
 
 static void printUsage() {
 	printf("%s", usage);
+}
+
+static Result fileCheck(const char * const filename) {
+	Result result = { .code = RESULT_OK };
+	result.errStr[0] = '\0';
+
+	if ((strlen(filename) <  MIN_FILENAME_SIZE) ||
+		(strlen(filename) >= MAX_FILENAME_SIZE)) {
+		result.code = RESULT_INVALID_PARAM;
+		copyMessage(result.errStr,
+			  		"Error: Filename size out of bounds");
+	}
+
+	return result;
+}
+
+static Result parseArgs(int argc, char *argv[]) {
+	Result result = {.code = RESULT_OK };
+	result.errStr[0] = '\0';
+
+	if (NULL == argv) {
+		result.code = RESULT_INVALID_PARAM;
+		copyMessage(result.errStr,
+			  		"Error: Invalid parameter");
+		return result;
+	}
+
+	const char * short_options = "hVf:";
+	const struct option long_options[] = {
+		{.name = "help", .has_arg = no_argument, .flag = NULL },
+		{.name = "version", .has_arg = no_argument, .flag = NULL },
+		{.name = "filename", .has_arg = required_argument, .flag = NULL },
+	};
+	int longindex = 0;
+
+	while (true) {
+		int opt_ret = getopt_long(argc, argv, short_options,
+								  long_options, &longindex);
+		if (opt_ret == -1) {
+			break;
+		}
+
+		switch (opt_ret) {
+			case 'h':
+				printUsage();
+				result.code = RESULT_OK;
+				result.errStr[0] = '\0';
+				return result;
+			case 'V':
+				printVersion();
+				result.code = RESULT_OK;
+				result.errStr[0] = '\0';
+				return result;
+			case 'f':
+				result = fileCheck(optarg);
+				if (result.code != RESULT_OK) {
+					return result;
+				}
+				size_t filenameSize = strlen(optarg);
+				char * filename = (char *)malloc(filenameSize + 1U);
+				if (NULL == filename) {
+					result.code = RESULT_FAILED_TO_ALLOCATE_MEMORY;
+					copyMessage(result.errStr, "Failed to allocate memory for filename");
+					return result;
+				}
+
+				strncpy(filename, optarg, filenameSize);
+				filename[filenameSize] = '\0';
+
+				printf("Filename: %s", filename);
+				free(filename);
+				filename = NULL;
+				break;
+			case '?':
+			default:
+				break;
+		}
+	}
+
+	return result;
 }
 
 int main(int argc, char *argv[]) {
@@ -33,5 +131,15 @@ int main(int argc, char *argv[]) {
 		printUsage();
 	}
 
-	return 0;
+	Result result;
+	result.code = RESULT_OK;
+	result.errStr[0] = '\0';
+
+	result = parseArgs(argc, argv);
+	if (RESULT_OK != result.code) {
+		fprintf(stderr, "Failed to parse argument: %s", result.errStr);
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
 }

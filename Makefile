@@ -17,7 +17,7 @@
 CC=gcc
 INC_DIRS=include
 IFLAGS=-I$(INC_DIRS)
-CFLAGS=-Wall -Wextra $(IFLAGS)
+CFLAGS=-Wall -Wextra -Wpedantic -std=c11 $(IFLAGS)
 SRC=main.c
 EXE=asm6
 

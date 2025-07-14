@@ -17,7 +17,7 @@
 
 
 /**
- * @file 6502 Instruction Set Header
+ * @file isa-6502.h 6502 Instruction Set Header
  *
  * @description This file contains the instruction
  * for the 6502 microprocessor.

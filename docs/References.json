@@ -1,0 +1,20 @@
+{
+	"6502 Documentation":
+		{
+			"HTML references":
+				[
+	   				"https://skilldrick.github.io/easy6502/#first-program",
+					"https://en.wikibooks.org/wiki/6502_Assembly",
+					"http://www.6502.org/tutorials/"
+				]
+		},
+	"Andrew Blance Medium":
+		{
+			"HTML references":
+				[
+					"https://codeburst.io/an-introduction-to-6502-assembly-and-low-level-programming-7c11fa6b9cb9",
+					"https://codeburst.io/introduction-to-binary-numbers-b0404f4401e3",
+					"https://codeburst.io/how-do-processors-actually-work-91dce24fbb44"
+				]
+		}
+}

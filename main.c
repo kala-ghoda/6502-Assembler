@@ -24,6 +24,7 @@
 
 /* Local headers */
 #include "common.h"
+#include "assembler.h"
 
 /**
  * @brief Structure to hold the parsed values
@@ -169,6 +170,16 @@ int main(int argc, char *argv[]) {
 	}
 
 	printf("Filename : %s\n", pv.filename);
+
+	result = assemble(pv.filename);
+	if (RESULT_OK != result.code) {
+		free(pv.filename);
+		pv.filename = NULL;
+
+		fprintf(stderr, "Failed to assemble: %s", result.errStr);
+		return EXIT_FAILURE;
+	}
+
 	free(pv.filename);
 	pv.filename = NULL;
 

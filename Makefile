@@ -18,8 +18,23 @@ CC=gcc
 INC_DIRS=include
 IFLAGS=-I$(INC_DIRS)
 CFLAGS=-Wall -Wextra -Wpedantic -std=c11 $(IFLAGS)
-SRC=main.c
+MAIN=main.c
+SRC_DIR=src
 EXE=asm6
+OBJ_DIR=obj
 
-all:
-	$(CC) $(CFLAGS) $(SRC) -o $(EXE)
+SRCS=$(wildcard $(SRC_DIR)/*.c)
+OBJS=$(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+
+all: $(EXE)
+
+$(EXE): $(OBJS)
+	$(CC) $(CFLAGS) $(MAIN) $^ -o $@
+
+$(OBJS): $(SRCS)
+	if [ ! -d $(OBJ_DIR) ]; then mkdir $(OBJ_DIR); fi
+	$(CC) $(CFLAGS) -c $^ -o $@
+
+clean:
+	rm -rf $(OBJ_DIR)
+	rm $(EXE)

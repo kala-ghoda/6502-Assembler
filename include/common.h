@@ -48,6 +48,8 @@ typedef enum {
 	RESULT_INVALID_PARAM,
 	/* Result code for failed to allocate memory */
 	RESULT_FAILED_TO_ALLOCATE_MEMORY,
+	/* Result code for invalid filename */
+	RESULT_INVALID_FILE_EXTENSION,
 	/* Result code for unknown error */
 	RESULT_ERROR,
 } ResultCode;

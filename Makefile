@@ -36,5 +36,7 @@ $(OBJS): $(SRCS)
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 clean:
-	rm -rf $(OBJ_DIR)
-	rm $(EXE)
+	if [ -d $(OBJ_DIR) ]; then rm -rf $(OBJ_DIR); fi
+	if [ -f $(EXE) ]; then rm $(EXE); fi
+
+.PHONY: all clean
